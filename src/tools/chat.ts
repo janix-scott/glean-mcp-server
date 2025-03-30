@@ -1,5 +1,12 @@
 import { z } from 'zod';
 import { getClient } from '../common/client.js';
+import {
+  DocumentSchema,
+  DocumentSpecSchema,
+  QuerySuggestionSchema,
+  SearchResultSnippetSchema,
+  TextRangeSchema,
+} from './schemas.js';
 
 /**
  * Schema for agent configuration in chat requests.
@@ -79,25 +86,32 @@ const ChatMessageCitationSchema = z.object({
       referenceRanges: z
         .array(
           z.object({
-            textRange: z
-              .object({
-                startIndex: z
-                  .number()
-                  .describe('Inclusive start index of the range'),
-                endIndex: z
-                  .number()
-                  .describe('Exclusive end index of the range'),
-                type: z
-                  .enum(['BOLD', 'CITATION', 'LINK'])
-                  .describe('Type of formatting to apply'),
-              })
-              .describe('A subsection of text with special formatting'),
+            textRange: TextRangeSchema.describe(
+              'A subsection of text with special formatting',
+            ),
           }),
         )
         .optional()
         .describe('Ranges within the document that are referenced'),
     })
     .describe('The document that is the source of the citation'),
+});
+
+/**
+ * Schema for structured results in chat message fragments.
+ */
+const StructuredResultSchema = z.object({
+  document: DocumentSchema.optional().describe(
+    'The document this result represents',
+  ),
+  snippets: z
+    .array(SearchResultSnippetSchema)
+    .optional()
+    .describe('Any snippets associated to the populated object'),
+  trackingToken: z
+    .string()
+    .optional()
+    .describe('An opaque token that represents this particular result'),
 });
 
 /**
@@ -114,12 +128,11 @@ const ChatMessageFragmentSchema = z.object({
   file: ChatFileSchema.optional().describe(
     'File referenced in the message fragment',
   ),
-  querySuggestion: z
-    .any()
-    .optional()
-    .describe('Search query suggestion associated with the fragment'),
+  querySuggestion: QuerySuggestionSchema.optional().describe(
+    'Search query suggestion associated with the fragment',
+  ),
   structuredResults: z
-    .array(z.any())
+    .array(StructuredResultSchema)
     .optional()
     .describe('Structured results associated with the fragment'),
 });
@@ -131,10 +144,12 @@ const ChatMessageFragmentSchema = z.object({
  * @type {z.ZodObject}
  */
 const ChatRestrictionFiltersSchema = z.object({
-  datasources: z
-    .array(z.string())
+  containerSpecs: z
+    .array(DocumentSpecSchema)
     .optional()
-    .describe('List of datasources to include/exclude'),
+    .describe(
+      'Specifications for containers that should be used as part of the restriction',
+    ),
 });
 
 /**

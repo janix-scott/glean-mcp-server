@@ -10,28 +10,102 @@
 
 import { z } from 'zod';
 import { getClient } from '../common/client.js';
+import {
+  DocumentSchema,
+  DocumentSpecSchema,
+  QuerySuggestionSchema,
+  SearchResultSnippetSchema,
+} from './schemas.js';
 
 /**
- * Schema for a person entity in search requests.
- * Matches the Glean SDK's Person type structure.
- *
- * @type {z.ZodObject}
+ * Schema for search result in search requests.
  */
-export const PersonSchema = z.object({
-  name: z.string(),
-  obfuscatedId: z.string(),
-  email: z.string().optional(),
-  metadata: z.any().optional(),
-  relatedDocuments: z.array(z.any()).optional(),
+const SearchResultSchema = z.object({
+  document: DocumentSchema.optional().describe(
+    'The document this result represents',
+  ),
+  title: z.string().optional().describe('Title of the search result'),
+  url: z.string().optional().describe('URL of the search result'),
+  nativeAppUrl: z
+    .string()
+    .optional()
+    .describe('Deep link into datasource native application'),
+  snippets: z
+    .array(SearchResultSnippetSchema)
+    .optional()
+    .describe('Text content from the result document'),
+  fullText: z.string().optional().describe('The full body text of the result'),
+  fullTextList: z
+    .array(z.string())
+    .optional()
+    .describe('The full body text split by lines'),
+  trackingToken: z.string().optional().describe('Opaque token for this result'),
+});
+
+/**
+ * Schema for related documents in search requests.
+ */
+const RelatedDocumentsSchema = z.object({
+  relation: z
+    .enum([
+      'ATTACHMENT',
+      'CANONICAL',
+      'CASE',
+      'CONTACT',
+      'CONVERSATION_MESSAGES',
+      'EXPERT',
+      'FROM',
+      'HIGHLIGHT',
+      'OPPORTUNITY',
+      'RECENT',
+      'SOURCE',
+      'TICKET',
+      'TRANSCRIPT',
+      'WITH',
+    ])
+    .describe('How this document relates to the including entity.'),
+  associatedEntityId: z
+    .string()
+    .optional()
+    .describe('Which entity in the response that this entity relates to.'),
+  querySuggestion: QuerySuggestionSchema.optional(),
+  documents: z
+    .array(DocumentSchema)
+    .optional()
+    .describe(
+      'A truncated list of documents with this relation. TO BE DEPRECATED.',
+    ),
+  results: z
+    .array(SearchResultSchema)
+    .optional()
+    .describe('A truncated list of documents associated with this relation.'),
+});
+
+/**
+ * Schema for person in search requests.
+ */
+const PersonSchema = z.object({
+  name: z.string().describe('The display name'),
+  obfuscatedId: z
+    .string()
+    .describe(
+      'An opaque identifier that can be used to request metadata for a Person',
+    ),
+  email: z.string().optional().describe('The email address of the person'),
+  metadata: z
+    .record(z.string())
+    .optional()
+    .describe('Additional metadata about the person'),
+  relatedDocuments: z
+    .array(RelatedDocumentsSchema)
+    .optional()
+    .describe('A list of documents related to this person'),
 });
 
 /**
  * Schema for facet filter value in search requests.
- * Defines the structure for facet filter values.
- *
- * @type {z.ZodObject}
  */
-export const FacetFilterValueSchema = z.object({
+const FacetFilterValueSchema = z.object({
   value: z.string().describe('Filter value'),
   relationType: z
     .enum(['EQUALS', 'ID_EQUALS', 'LT', 'GT'])
@@ -45,39 +119,61 @@ export const FacetFilterValueSchema = z.object({
 
 /**
  * Schema for facet filter in search requests.
- * Defines the structure for facet filters.
- *
- * @type {z.ZodObject}
  */
-export const FacetFilterSchema = z.object({
+const FacetFilterSchema = z.object({
   fieldName: z.string().describe('Name of the field to filter on'),
   values: z.array(FacetFilterValueSchema).describe('Values to filter by'),
+  groupName: z.string().optional().describe('Name of the filter group'),
+});
+
+/**
+ * Schema for facet filter set in search requests.
+ */
+const FacetFilterSetSchema = z.object({
+  filters: z
+    .array(FacetFilterSchema)
+    .optional()
+    .describe('List of filters in this set'),
+});
+
+/**
+ * Schema for facet bucket filter in search requests.
+ */
+const FacetBucketFilterSchema = z.object({
+  facet: z.string().optional().describe('The facet to filter'),
+  prefix: z.string().optional().describe('Prefix to filter facet values by'),
+});
+
+/**
+ * Schema for auth token in search requests.
+ */
+const AuthTokenSchema = z.object({
+  accessToken: z.string().describe('The access token'),
+  datasource: z.string().describe('The datasource this token is for'),
+  scope: z.string().optional().describe('OAuth scope of the token'),
+  tokenType: z.string().optional().describe('Type of the token'),
+  authUser: z.string().optional().describe('User associated with this token'),
+  expiration: z.number().optional().describe('Token expiration timestamp'),
 });
 
 /**
  * Schema for restriction filters in search requests.
- * Defines the structure for inclusion/exclusion filters.
- *
- * @type {z.ZodObject}
  */
-export const RestrictionFiltersSchema = z.object({
-  datasources: z
-    .array(z.string())
-    .optional()
-    .describe('List of datasources to include/exclude'),
-  people: z
-    .array(PersonSchema)
-    .optional()
-    .describe('List of people to include/exclude'),
+const RestrictionFiltersSchema = z.object({
+  containerSpecs: z.array(DocumentSpecSchema).optional(),
+});
+
+/**
+ * Schema for search request input details.
+ */
+const SearchRequestInputDetailsSchema = z.object({
+  hasCopyPaste: z.boolean().optional(),
 });
 
 /**
  * Schema for search request options.
- * Defines the options that can be specified for a search request.
- *
- * @type {z.ZodObject}
  */
-export const SearchRequestOptionsSchema = z.object({
+const SearchRequestOptionsSchema = z.object({
   datasourceFilter: z
     .string()
     .optional()
@@ -96,14 +192,14 @@ export const SearchRequestOptionsSchema = z.object({
     .array(FacetFilterSchema)
     .optional()
     .describe('List of filters for the query (ANDed together)'),
-  facetBucketSize: z
-    .number()
-    .optional()
-    .describe('Maximum number of FacetBuckets to return in each FacetResult'),
+  facetFilterSets: z.array(FacetFilterSetSchema).optional(),
+  facetBucketFilter: FacetBucketFilterSchema.optional(),
+  facetBucketSize: z.number(),
   defaultFacets: z
     .array(z.string())
     .optional()
     .describe('Facets for which FacetResults should be fetched'),
+  authTokens: z.array(AuthTokenSchema).optional(),
   fetchAllDatasourceCounts: z
     .boolean()
     .optional()
@@ -145,23 +241,7 @@ export const SearchRequestOptionsSchema = z.object({
 });
 
 /**
- * Schema for search request input details.
- * Defines additional metadata about the search input.
- *
- * @type {z.ZodObject}
- */
-export const SearchRequestInputDetailsSchema = z.object({
-  hasCopyPaste: z
-    .boolean()
-    .optional()
-    .describe('Whether the query was at least partially copy-pasted'),
-});
-
-/**
  * Schema for search request parameters.
- * Defines all possible search parameters supported by the Glean search API.
- *
- * @type {z.ZodObject}
  */
 export const SearchSchema = z.object({
   query: z.string().describe('The search terms'),
