@@ -1,6 +1,23 @@
 
 
 
+
+## v0.2.0 (2025-03-31)
+
+#### :rocket: Enhancement
+* [#23](https://github.com/gleanwork/mcp-server/pull/23) Provides better handling of invalid tokens. Also improves test infra. ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+#### :bug: Bug Fix
+* [#23](https://github.com/gleanwork/mcp-server/pull/23) Provides better handling of invalid tokens. Also improves test infra. ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+* [#22](https://github.com/gleanwork/mcp-server/pull/22) Fix schema validation errors ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+#### :house: Internal
+* [#23](https://github.com/gleanwork/mcp-server/pull/23) Provides better handling of invalid tokens. Also improves test infra. ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+#### Committers: 1
+- Steve Calvert ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+
 ## v0.1.1 (2025-03-22)
 
 #### :bug: Bug Fix
