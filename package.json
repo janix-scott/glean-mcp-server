@@ -73,7 +73,8 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "esbuild"
+      "esbuild",
+      "msw"
     ]
   },
   "release-it": {
