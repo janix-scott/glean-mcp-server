@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@modelcontextprotocol/sdk':
         specifier: ^1.7.0
-        version: 1.7.0
+        version: 1.8.0
       node-fetch:
         specifier: ^2.7.0
         version: 2.7.0(encoding@0.1.13)
@@ -350,8 +350,8 @@ packages:
   '@jridgewell/sourcemap-codec@1.5.0':
     resolution: {integrity: sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ==}
 
-  '@modelcontextprotocol/sdk@1.7.0':
-    resolution: {integrity: sha512-IYPe/FLpvF3IZrd/f5p5ffmWhMc3aEMuM2wGJASDqC2Ge7qatVCdbfPx3n/5xFeb19xN0j/911M2AaFuircsWA==}
+  '@modelcontextprotocol/sdk@1.8.0':
+    resolution: {integrity: sha512-e06W7SwrontJDHwCawNO5SGxG+nU9AAx+jpHHZqGl/WrDBdWOpvirC+s58VpJTB5QemI4jTRcjWT4Pt3Q1NPQQ==}
     engines: {node: '>=18'}
 
   '@mswjs/interceptors@0.37.6':
@@ -767,8 +767,8 @@ packages:
   bl@4.1.0:
     resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
 
-  body-parser@2.1.0:
-    resolution: {integrity: sha512-/hPxh61E+ll0Ujp24Ilm64cykicul1ypfwjVttduAiEdtnJFvLePSrIPk+HMImtNv5270wOGCb1Tns2rybMkoQ==}
+  body-parser@2.2.0:
+    resolution: {integrity: sha512-02qvAaxv8tp7fBa/mw1ga98OGm+eCbqzJOKoRt70sLmfEEi+jyBYVTDGfCL/k06/4EMk/z01gCe7HoCH/f2LTg==}
     engines: {node: '>=18'}
 
   boxen@8.0.1:
@@ -1018,10 +1018,6 @@ packages:
     resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
     engines: {node: '>=6'}
 
-  destroy@1.2.0:
-    resolution: {integrity: sha512-2sJGJTaXIIaR1w4iJSNoN0hnMY7Gpc/n8D4qSCJw8QqFWXf7cuAgnEHxBpweaVcPevC2l3KpjYCx3NypQQgaJg==}
-    engines: {node: '>= 0.8', npm: 1.2.8000 || >= 1.4.16}
-
   diff@5.2.0:
     resolution: {integrity: sha512-uIFDxqpRZGZ6ThOk84hEfqWoHx2devRFvpTZcTHur85vImfaxUbTW9Ryh4CpCuDnToOP1CEtXKIgytHBPVff5A==}
     engines: {node: '>=0.3.1'}
@@ -1175,12 +1171,12 @@ packages:
     resolution: {integrity: sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==}
     engines: {node: '>= 0.6'}
 
-  eventsource-parser@3.0.0:
-    resolution: {integrity: sha512-T1C0XCUimhxVQzW4zFipdx0SficT651NnkR0ZSH3yQwh+mFMdLfgjABVi4YtMTtaL4s168593DaoaRLMqryavA==}
+  eventsource-parser@3.0.1:
+    resolution: {integrity: sha512-VARTJ9CYeuQYb0pZEPbzi740OWFgpHe7AYJ2WFZVnUDUQp5Dk2yJUgF36YsZ81cOyxT0QxmXD2EQpapAouzWVA==}
     engines: {node: '>=18.0.0'}
 
-  eventsource@3.0.5:
-    resolution: {integrity: sha512-LT/5J605bx5SNyE+ITBDiM3FxffBiq9un7Vx0EwMDM3vg8sWKx/tO2zC+LMqZ+smAM0F2hblaDZUVZF0te2pSw==}
+  eventsource@3.0.6:
+    resolution: {integrity: sha512-l19WpE2m9hSuyP06+FbuUUf1G+R0SFLrtQfbRb9PRr+oimOfxQhgGCbVaXg5IvZyyTThJsxh6L/srkMiCeBPDA==}
     engines: {node: '>=18.0.0'}
 
   execa@5.1.1:
@@ -1261,10 +1257,6 @@ packages:
 
   forwarded@0.2.0:
     resolution: {integrity: sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==}
-    engines: {node: '>= 0.6'}
-
-  fresh@0.5.2:
-    resolution: {integrity: sha512-zJ2mQYM18rEFOudeV4GShTGIQ7RbzA7ozbU9I/XBpm7kqgMywgmylMwXHxZJmkVoYkna9d2pVXVXPdYTP9ej8Q==}
     engines: {node: '>= 0.6'}
 
   fresh@2.0.0:
@@ -1436,10 +1428,6 @@ packages:
 
   iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
-    engines: {node: '>=0.10.0'}
-
-  iconv-lite@0.5.2:
-    resolution: {integrity: sha512-kERHXvpSaB4aU3eANwidg79K8FlrN77m8G9V+0vOR3HYaRifrlwMEpT7ZBJqLSEIHnEgJTHcWK82wwLwwKwtag==}
     engines: {node: '>=0.10.0'}
 
   iconv-lite@0.6.3:
@@ -1814,16 +1802,16 @@ packages:
     resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}
     engines: {node: '>= 0.6'}
 
-  mime-db@1.53.0:
-    resolution: {integrity: sha512-oHlN/w+3MQ3rba9rqFr6V/ypF10LSkdwUysQL7GkXoTgIWeV+tcXGA852TBxH+gsh8UWoyhR1hKcoMJTuWflpg==}
+  mime-db@1.54.0:
+    resolution: {integrity: sha512-aU5EJuIN2WDemCcAp2vFBfp/m4EAhWJnUNSSw0ixs7/kXbd6Pg64EmwJkNdFhB8aWt1sH2CTXrLxo/iAGV3oPQ==}
     engines: {node: '>= 0.6'}
 
   mime-types@2.1.35:
     resolution: {integrity: sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==}
     engines: {node: '>= 0.6'}
 
-  mime-types@3.0.0:
-    resolution: {integrity: sha512-XqoSHeCGjVClAmoGFG3lVFqQFRIrTVw2OH3axRqAcfaw+gHWIfnASS92AV+Rl/mk0MupgZTRHQOjxY6YVnzK5w==}
+  mime-types@3.0.1:
+    resolution: {integrity: sha512-xRc4oEhT6eaBpU1XF7AjpOFD+xQmXNB5OVKwp4tqCuBpHLS/ZbBDrc07mYTDqVMg6PfxUjjNp85O6Cd2Z/5HWA==}
     engines: {node: '>= 0.6'}
 
   mimic-fn@2.1.0:
@@ -2300,8 +2288,8 @@ packages:
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
-  router@2.1.0:
-    resolution: {integrity: sha512-/m/NSLxeYEgWNtyC+WtNHCF7jbGxOibVWKnn+1Psff4dJGOfoXP+MuC/f2CwSmyiHdOIzYnYFp4W6GxWfekaLA==}
+  router@2.2.0:
+    resolution: {integrity: sha512-nLTrUKm2UyiL7rlhapu/Zl45FwNgkZGaCpZbIHajDYgwlJCOzLSk+cIPAnsEqV955GjILJnKbdQC1nVPz+gAYQ==}
     engines: {node: '>= 18'}
 
   run-applescript@7.0.0:
@@ -2338,12 +2326,12 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  send@1.1.0:
-    resolution: {integrity: sha512-v67WcEouB5GxbTWL/4NeToqcZiAWEq90N888fczVArY8A79J0L4FD7vj5hm3eUMua5EpoQ59wa/oovY6TLvRUA==}
+  send@1.2.0:
+    resolution: {integrity: sha512-uaW0WwXKpL9blXE2o0bRhoL2EGXIrZxQ2ZQ4mgcfoBxdFmQold+qWsD2jLrfZ0trjKL6vOw0j//eAwcALFjKSw==}
     engines: {node: '>= 18'}
 
-  serve-static@2.1.0:
-    resolution: {integrity: sha512-A3We5UfEjG8Z7VkDv6uItWw6HY2bBSBJT1KtVESn6EOoOr2jAxNhxWCLY3jDE2WcuHXByWju74ck3ZgLwL8xmA==}
+  serve-static@2.2.0:
+    resolution: {integrity: sha512-61g9pCh0Vnh7IutZjtLGGpTA355+OPn2TyDv/6ivP2h/AdAVX9azsoxmg2/M6nZeQZNYBEwIcsne1mJd9oQItQ==}
     engines: {node: '>= 18'}
 
   setprototypeof@1.2.0:
@@ -2573,8 +2561,8 @@ packages:
     resolution: {integrity: sha512-S/5/0kFftkq27FPNye0XM1e2NsnoD/3FS+pBmbjmmtLT6I+i344KoOf7pvXreaFsDamWeaJX55nczA1m5PsBDg==}
     engines: {node: '>=16'}
 
-  type-is@2.0.0:
-    resolution: {integrity: sha512-gd0sGezQYCbWSbkZr75mln4YBidWUN60+devscpLF5mtRDUpiaTvKpBNrdaCvel1NdR2k6vclXybU5fBd2i+nw==}
+  type-is@2.0.1:
+    resolution: {integrity: sha512-OZs6gsjF4vMp32qrCbiVSkrFmXtG/AZhY3t0iAMrMBiAZyV9oALtXO8hsrHbMXF9x6L3grlFuwW2oAz7cav+Gw==}
     engines: {node: '>= 0.6'}
 
   typescript@5.8.2:
@@ -3020,11 +3008,12 @@ snapshots:
 
   '@jridgewell/sourcemap-codec@1.5.0': {}
 
-  '@modelcontextprotocol/sdk@1.7.0':
+  '@modelcontextprotocol/sdk@1.8.0':
     dependencies:
       content-type: 1.0.5
       cors: 2.8.5
-      eventsource: 3.0.5
+      cross-spawn: 7.0.6
+      eventsource: 3.0.6
       express: 5.0.1
       express-rate-limit: 7.5.0(express@5.0.1)
       pkce-challenge: 4.1.0
@@ -3377,7 +3366,7 @@ snapshots:
 
   accepts@2.0.0:
     dependencies:
-      mime-types: 3.0.0
+      mime-types: 3.0.1
       negotiator: 1.0.0
 
   acorn-jsx@5.3.2(acorn@8.14.1):
@@ -3463,17 +3452,17 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
 
-  body-parser@2.1.0:
+  body-parser@2.2.0:
     dependencies:
       bytes: 3.1.2
       content-type: 1.0.5
       debug: 4.4.0
       http-errors: 2.0.0
-      iconv-lite: 0.5.2
+      iconv-lite: 0.6.3
       on-finished: 2.4.1
       qs: 6.14.0
       raw-body: 3.0.0
-      type-is: 2.0.0
+      type-is: 2.0.1
     transitivePeerDependencies:
       - supports-color
 
@@ -3718,8 +3707,6 @@ snapshots:
 
   dequal@2.0.3: {}
 
-  destroy@1.2.0: {}
-
   diff@5.2.0: {}
 
   dot-prop@9.0.0:
@@ -3899,11 +3886,11 @@ snapshots:
 
   etag@1.8.1: {}
 
-  eventsource-parser@3.0.0: {}
+  eventsource-parser@3.0.1: {}
 
-  eventsource@3.0.5:
+  eventsource@3.0.6:
     dependencies:
-      eventsource-parser: 3.0.0
+      eventsource-parser: 3.0.1
 
   execa@5.1.1:
     dependencies:
@@ -3938,7 +3925,7 @@ snapshots:
   express@5.0.1:
     dependencies:
       accepts: 2.0.0
-      body-parser: 2.1.0
+      body-parser: 2.2.0
       content-disposition: 1.0.0
       content-type: 1.0.5
       cookie: 0.7.1
@@ -3953,20 +3940,20 @@ snapshots:
       http-errors: 2.0.0
       merge-descriptors: 2.0.0
       methods: 1.1.2
-      mime-types: 3.0.0
+      mime-types: 3.0.1
       on-finished: 2.4.1
       once: 1.4.0
       parseurl: 1.3.3
       proxy-addr: 2.0.7
       qs: 6.13.0
       range-parser: 1.2.1
-      router: 2.1.0
+      router: 2.2.0
       safe-buffer: 5.2.1
-      send: 1.1.0
-      serve-static: 2.1.0
+      send: 1.2.0
+      serve-static: 2.2.0
       setprototypeof: 1.2.0
       statuses: 2.0.1
-      type-is: 2.0.0
+      type-is: 2.0.1
       utils-merge: 1.0.1
       vary: 1.1.2
     transitivePeerDependencies:
@@ -4042,8 +4029,6 @@ snapshots:
       mime-types: 2.1.35
 
   forwarded@0.2.0: {}
-
-  fresh@0.5.2: {}
 
   fresh@2.0.0: {}
 
@@ -4228,10 +4213,6 @@ snapshots:
       ms: 2.1.3
 
   iconv-lite@0.4.24:
-    dependencies:
-      safer-buffer: 2.1.2
-
-  iconv-lite@0.5.2:
     dependencies:
       safer-buffer: 2.1.2
 
@@ -4658,15 +4639,15 @@ snapshots:
 
   mime-db@1.52.0: {}
 
-  mime-db@1.53.0: {}
+  mime-db@1.54.0: {}
 
   mime-types@2.1.35:
     dependencies:
       mime-db: 1.52.0
 
-  mime-types@3.0.0:
+  mime-types@3.0.1:
     dependencies:
-      mime-db: 1.53.0
+      mime-db: 1.54.0
 
   mimic-fn@2.1.0: {}
 
@@ -5177,11 +5158,15 @@ snapshots:
       '@rollup/rollup-win32-x64-msvc': 4.35.0
       fsevents: 2.3.3
 
-  router@2.1.0:
+  router@2.2.0:
     dependencies:
+      debug: 4.4.0
+      depd: 2.0.0
       is-promise: 4.0.0
       parseurl: 1.3.3
       path-to-regexp: 8.2.0
+    transitivePeerDependencies:
+      - supports-color
 
   run-applescript@7.0.0: {}
 
@@ -5207,16 +5192,15 @@ snapshots:
 
   semver@7.7.1: {}
 
-  send@1.1.0:
+  send@1.2.0:
     dependencies:
       debug: 4.3.6
-      destroy: 1.2.0
       encodeurl: 2.0.0
       escape-html: 1.0.3
       etag: 1.8.1
-      fresh: 0.5.2
+      fresh: 2.0.0
       http-errors: 2.0.0
-      mime-types: 2.1.35
+      mime-types: 3.0.1
       ms: 2.1.3
       on-finished: 2.4.1
       range-parser: 1.2.1
@@ -5224,12 +5208,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  serve-static@2.1.0:
+  serve-static@2.2.0:
     dependencies:
       encodeurl: 2.0.0
       escape-html: 1.0.3
       parseurl: 1.3.3
-      send: 1.1.0
+      send: 1.2.0
     transitivePeerDependencies:
       - supports-color
 
@@ -5441,11 +5425,11 @@ snapshots:
 
   type-fest@4.37.0: {}
 
-  type-is@2.0.0:
+  type-is@2.0.1:
     dependencies:
       content-type: 1.0.5
       media-typer: 1.1.0
-      mime-types: 3.0.0
+      mime-types: 3.0.1
 
   typescript@5.8.2: {}
 
