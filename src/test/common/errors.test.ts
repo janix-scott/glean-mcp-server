@@ -10,7 +10,7 @@ import {
   isGleanError,
   createGleanError,
 } from '../../common/errors';
-import { formatGleanError } from '../../index';
+import { formatGleanError } from '../../server';
 
 describe('Glean Errors', () => {
   describe('formatGleanError', () => {

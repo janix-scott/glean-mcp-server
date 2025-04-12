@@ -35,19 +35,52 @@ You'll need Glean [API credentials](https://developers.glean.com/client/authenti
 
 ### Configure Environment Variables
 
-
 1. Set up your Glean API credentials:
 
-    ```bash
-    export GLEAN_SUBDOMAIN=your_subdomain
-    export GLEAN_API_TOKEN=your_api_token
-    ```
+   ```bash
+   export GLEAN_SUBDOMAIN=your_subdomain
+   export GLEAN_API_TOKEN=your_api_token
+   ```
 
 1. (Optional) For [global tokens](https://developers.glean.com/indexing/authentication/permissions#global-tokens) that support impersonation:
 
-    ```bash
-    export GLEAN_ACT_AS=user@example.com
-    ```
+   ```bash
+   export GLEAN_ACT_AS=user@example.com
+   ```
+
+## Client Configuration
+
+You can use the built-in configuration tool to automatically set up Glean for your MCP client:
+
+```bash
+# Configure for Cursor
+npx @gleanwork/mcp-server configure --client cursor --token your_api_token --domain your_subdomain
+
+# Configure for Claude Desktop
+npx @gleanwork/mcp-server configure --client claude --token your_api_token --domain your_subdomain
+
+# Configure for Windsurf
+npx @gleanwork/mcp-server configure --client windsurf --token your_api_token --domain your_subdomain
+```
+
+Alternatively, you can use an environment file:
+
+```bash
+npx @gleanwork/mcp-server configure --client cursor --env path/to/.env.glean
+```
+
+The environment file should contain:
+
+```
+GLEAN_SUBDOMAIN=your_subdomain
+GLEAN_API_TOKEN=your_api_token
+```
+
+After configuration:
+
+- For Cursor: Restart Cursor and the agent will have access to Glean tools
+- For Claude Desktop: Restart Claude and use the hammer icon to access Glean tools
+- For Windsurf: Open Settings > Advanced Settings, scroll to Cascade section, and press refresh
 
 ## MCP Client Configuration
 

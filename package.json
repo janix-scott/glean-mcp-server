@@ -22,21 +22,27 @@
     "build/common/**/*",
     "build/tools/**/*",
     "build/types/**/*",
-    "build/index.*"
+    "build/index.*",
+    "build/server.*",
+    "build/configure.*"
   ],
   "scripts": {
     "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
     "format": "prettier src/**/*.ts -w",
     "inspector": "npx @modelcontextprotocol/inspector build/index.js",
     "lint": "eslint --ext ts,js --fix src",
+    "lint:ts": "tsc --noEmit",
     "prepare": "pnpm run build",
     "release": "release-it",
     "test": "vitest run",
+    "test:all": "pnpm lint && pnpm lint:ts && pnpm test",
     "test:watch": "vitest",
     "watch": "tsc -w"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.7.0",
+    "dotenv": "^16.3.1",
+    "meow": "^13.2.0",
     "node-fetch": "^2.7.0",
     "zod": "^3.24.2",
     "zod-to-json-schema": "^3.24.5"
@@ -45,6 +51,7 @@
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.23.0",
     "@release-it-plugins/lerna-changelog": "^7.0.0",
+    "@scalvert/bin-tester": "^2.1.1",
     "@types/node": "^22.13.11",
     "@types/node-fetch": "^2.6.12",
     "@typescript-eslint/eslint-plugin": "^8.27.0",
