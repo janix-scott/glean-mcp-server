@@ -13,13 +13,14 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const packageJsonPath = path.join(__dirname, '..', '..', 'package.json');
-let packageVersion = '0.0.0';
+const DEFAULT_VERSION = '0.0.0';
+let packageVersion = DEFAULT_VERSION;
 
 try {
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
-  packageVersion = packageJson.version || '0.0.0';
-} catch (error) {
-  console.warn('Could not read package.json version, using default', error);
+  packageVersion = packageJson.version || DEFAULT_VERSION;
+} catch {
+  packageVersion = DEFAULT_VERSION;
 }
 
 export const VERSION = packageVersion;
