@@ -18,10 +18,53 @@ import { availableClients, ensureClientsLoaded } from './configure/index.js';
 import { VERSION } from './common/version.js';
 
 /**
+ * Validates client and credential parameters
+ * Returns true if validation passes, false if it fails (with appropriate error messages)
+ */
+export async function validateFlags(
+  client: string | undefined,
+  token: string | undefined,
+  domain: string | undefined,
+  env: string | undefined,
+): Promise<boolean> {
+  if (!client) {
+    console.error('Error: --client parameter is required');
+    console.error('Run with --help for usage information');
+    await listSupportedClients();
+    return false;
+  }
+
+  const hasCredentialParams = Boolean(token || domain);
+  const hasEnvParam = Boolean(env);
+
+  if (hasCredentialParams && hasEnvParam) {
+    console.error(
+      'Error: You must provide either --token and --domain OR --env, not both.',
+    );
+    console.error('Run with --help for usage information');
+    return false;
+  }
+
+  if ((!token || !domain) && !env) {
+    console.error('Warning: Configuring without complete credentials.');
+    console.error('You must provide either:');
+    console.error('  1. Both --token and --domain, or');
+    console.error(
+      '  2. --env pointing to a .env file containing GLEAN_API_TOKEN and GLEAN_SUBDOMAIN',
+    );
+    console.error('');
+    console.error(
+      'Continuing with configuration, but you will need to set credentials manually later.',
+    );
+  }
+
+  return true;
+}
+
+/**
  * Main function to handle command line arguments and branch between server and configure modes
  */
 async function main() {
-  // Pre-load clients before generating help text
   try {
     await ensureClientsLoaded();
   } catch {
@@ -30,7 +73,6 @@ async function main() {
     );
   }
 
-  // Get the list of available clients
   const clientList = Object.keys(availableClients).join(', ');
 
   const cli = meow(
@@ -96,75 +138,18 @@ async function main() {
     return;
   }
 
-  // Handle command
   const command = cli.input[0].toLowerCase();
 
   switch (command) {
     case 'configure': {
       const { client, token, domain, env } = cli.flags;
 
-      // Validate required parameters
-      if (!client) {
-        console.error('Error: --client parameter is required');
-        console.error('Run with --help for usage information');
-
-        // Show available clients
-        await listSupportedClients();
+      if (!(await validateFlags(client, token, domain, env))) {
         process.exit(1);
-      }
-
-      // Check if either (token & domain) or env is provided
-      if ((!token || !domain) && !env) {
-        console.error('Warning: Configuring without complete credentials.');
-        console.error('You must provide either:');
-        console.error('  1. Both --token and --domain, or');
-        console.error(
-          '  2. --env pointing to a .env file containing GLEAN_API_TOKEN and GLEAN_SUBDOMAIN',
-        );
-        console.error('');
-        console.error(
-          'Continuing with configuration, but you will need to set credentials manually later.',
-        );
       }
 
       try {
-        await configure(client, { token, domain, envPath: env });
-      } catch (error: any) {
-        console.error(`Configuration failed: ${error.message}`);
-        process.exit(1);
-      }
-      break;
-    }
-
-    // Keep 'install' as an alias for 'configure' for backward compatibility
-    case 'install': {
-      const { client, token, domain, env } = cli.flags;
-      console.log(
-        'Note: The "install" command is deprecated, please use "configure" instead.',
-      );
-
-      if (!client) {
-        console.error('Error: --client parameter is required');
-        console.error('Run with --help for usage information');
-        await listSupportedClients();
-        process.exit(1);
-      }
-
-      if ((!token || !domain) && !env) {
-        console.error('Warning: Configuring without complete credentials.');
-        console.error('You must provide either:');
-        console.error('  1. Both --token and --domain, or');
-        console.error(
-          '  2. --env pointing to a .env file containing GLEAN_API_TOKEN and GLEAN_SUBDOMAIN',
-        );
-        console.error('');
-        console.error(
-          'Continuing with configuration, but you will need to set credentials manually later.',
-        );
-      }
-
-      try {
-        await configure(client, { token, domain, envPath: env });
+        await configure(client as string, { token, domain, envPath: env });
       } catch (error: any) {
         console.error(`Configuration failed: ${error.message}`);
         process.exit(1);
@@ -186,7 +171,6 @@ async function main() {
   }
 }
 
-// Run the main function and handle any fatal errors
 main().catch((error) => {
   console.error('Fatal error:', error);
   process.exit(1);

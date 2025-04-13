@@ -11,6 +11,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.7.0
         version: 1.9.0
+      console-test-helpers:
+        specifier: ^0.3.3
+        version: 0.3.3
       dotenv:
         specifier: ^16.3.1
         version: 16.5.0
@@ -971,6 +974,9 @@ packages:
   configstore@7.0.0:
     resolution: {integrity: sha512-yk7/5PN5im4qwz0WFZW3PXnzHgPu9mX29Y8uZ3aefe2lBPC1FYttWZRcaW9fKkT0pBCJyuQ2HfbmPVaODi9jcQ==}
     engines: {node: '>=18'}
+
+  console-test-helpers@0.3.3:
+    resolution: {integrity: sha512-HOInu18dnmeZ+sACk2QMHBgN3wa1cZtKPxRcQxxKNgPx91X+z3Z0lVwQAxmTprmLrRPMHT4izvkPYfi+UZoyxQ==}
 
   content-disposition@1.0.0:
     resolution: {integrity: sha512-Au9nRL8VNUut/XSzbQA38+M78dzP4D+eqg3gfJHMIHHYa3bg067xj1KxMUWj+VULbiZMowKngFFbKczUrNJ1mg==}
@@ -2305,6 +2311,9 @@ packages:
   rechoir@0.6.2:
     resolution: {integrity: sha512-HFM8rkZ+i3zrV+4LQjwQ0W+ez98pApMGM3HUrN04j3CqzPOzl9nmP15Y8YXNm8QHGv/eacOVEjqhmWpkRV0NAw==}
     engines: {node: '>= 0.10'}
+
+  recursive-readdir-sync@1.0.6:
+    resolution: {integrity: sha512-QhkBh/V7T3L2m8FrwZEZ/VnSZU35bv7DSy/VlKVfcq10zvwwuxeuDLH7DZYFGHFyXefHchZmsHFLELR7poGjog==}
 
   registry-auth-token@5.1.0:
     resolution: {integrity: sha512-GdekYuwLXLxMuFTwAPg5UKGLW/UXzQrZvH/Zj791BQif5T05T0RsaLfHc9q3ZOKi7n+BoprPD9mJ0O0k4xzUlw==}
@@ -3796,6 +3805,10 @@ snapshots:
       graceful-fs: 4.2.11
       xdg-basedir: 5.1.0
 
+  console-test-helpers@0.3.3:
+    dependencies:
+      recursive-readdir-sync: 1.0.6
+
   content-disposition@1.0.0:
     dependencies:
       safe-buffer: 5.2.1
@@ -5255,6 +5268,8 @@ snapshots:
   rechoir@0.6.2:
     dependencies:
       resolve: 1.22.10
+
+  recursive-readdir-sync@1.0.6: {}
 
   registry-auth-token@5.1.0:
     dependencies:
