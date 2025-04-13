@@ -116,14 +116,15 @@ export async function configure(client: string, options: ConfigureOptions) {
       try {
         existingConfig = JSON.parse(fileContent);
       } catch (error: any) {
+        const backupPath = `${configFilePath}.backup-${Date.now()}`;
+
         console.error(
           `Error parsing existing configuration file: ${error.message}`,
         );
         console.error(
-          `Creating backup of existing file and creating new one...`,
+          `Creating backup of existing file to ${backupPath} and creating new one...`,
         );
 
-        const backupPath = `${configFilePath}.backup-${Date.now()}`;
         fs.copyFileSync(configFilePath, backupPath);
         console.log(`Backup created at: ${backupPath}`);
 
