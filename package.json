@@ -19,12 +19,14 @@
     "glean-mcp-server": "build/index.js"
   },
   "files": [
-    "build/common/**/*",
-    "build/tools/**/*",
-    "build/types/**/*",
-    "build/index.*",
-    "build/server.*",
-    "build/configure.*"
+    "build/**/*.js",
+    "build/**/*.d.ts",
+    "build/**/*.js.map",
+    "build/**/*.d.ts.map",
+    "!build/**/test/**",
+    "!build/test/**",
+    "!build/src/**",
+    "!build/vitest.config.*"
   ],
   "scripts": {
     "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
