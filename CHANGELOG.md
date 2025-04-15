@@ -2,6 +2,16 @@
 
 
 
+
+## v0.3.0 (2025-04-15)
+
+#### :rocket: Enhancement
+* [#38](https://github.com/gleanwork/mcp-server/pull/38) feat: Adds the ability to run an configure command to configure the MCP Server ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+#### Committers: 1
+- Steve Calvert ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+
 ## v0.2.0 (2025-03-31)
 
 #### :rocket: Enhancement
