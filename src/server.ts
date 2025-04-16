@@ -12,6 +12,7 @@
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { HttpServerTransport } from './transport/http.js';
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
@@ -191,41 +192,34 @@ export function formatGleanError(error: GleanError): string {
 }
 
 /**
- * Initializes and starts the MCP server using stdio transport.
- * This is the main entry point for the server process.
+ * Initializes and starts the MCP server using the specified transport.
+ * Supports both stdio and HTTP transports.
  *
  * @async
+ * @param {object} options - Server options
+ * @param {string} options.transport - Transport type ('stdio' or 'http')
+ * @param {number} options.port - Port number for HTTP transport
  * @throws {Error} If server initialization or connection fails
  */
-export async function runServer() {
-  const transport = new StdioServerTransport();
+export async function runServer(options: { transport?: 'stdio' | 'http'; port?: number } = {}) {
+  const transport = options.transport || 'stdio';
+  const port = options.port || 3000;
+
+  let serverTransport;
+  if (transport === 'http') {
+    serverTransport = new HttpServerTransport(port);
+  } else {
+    serverTransport = new StdioServerTransport();
+  }
 
   try {
-    await server.connect(transport);
-    console.error(`Glean MCP Server v${VERSION} running on stdio`);
-
-    // Create a promise that never resolves to keep the process alive
-    // This is necessary because the MCP server will handle requests
-    // over the transport until terminated
-    return new Promise<void>(() => {
-      // The server keeps running until the process is terminated
-      console.error(
-        'Server is now handling requests. Press Ctrl+C to terminate.',
-      );
-
-      // Handle shutdown signals
-      process.on('SIGINT', () => {
-        console.error('Received SIGINT signal. Shutting down...');
-        process.exit(0);
-      });
-
-      process.on('SIGTERM', () => {
-        console.error('Received SIGTERM signal. Shutting down...');
-        process.exit(0);
-      });
-    });
+    await server.connect(serverTransport);
+    console.log(`MCP server started with ${transport} transport`);
+    if (transport === 'http') {
+      console.log(`HTTP server listening on port ${port}`);
+    }
   } catch (error) {
-    console.error('Error starting MCP server:', error);
-    throw error; // Re-throw to allow the outer catch to handle it
+    console.error('Failed to start MCP server:', error);
+    process.exit(1);
   }
 }
