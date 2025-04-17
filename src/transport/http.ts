@@ -21,6 +21,7 @@ interface Session {
   lastActivity: Date;
   eventEmitter: EventEmitter;
   isInitialized: boolean;
+  userContext?: string; // Add user context (email) for Glean "act-as" parameter
 }
 
 // JSON-RPC Message Schemas
@@ -73,7 +74,7 @@ export class HttpServerTransport implements Transport {
     this.app.use(cors({
       origin: '*', // Configure appropriately for production
       methods: ['GET', 'POST', 'DELETE'],
-      allowedHeaders: ['Content-Type', 'Mcp-Session-Id', 'Accept'],
+      allowedHeaders: ['Content-Type', 'Mcp-Session-Id', 'Accept', 'X-Glean-Act-As'],
       exposedHeaders: ['Mcp-Session-Id'],
     }));
   }
@@ -83,6 +84,7 @@ export class HttpServerTransport implements Transport {
     this.app.post('/v1/mcp', async (req: Request, res: Response) => {
       try {
         const sessionId = req.headers['mcp-session-id'] as string;
+        const actAsUser = req.headers['x-glean-act-as'] as string;
         const accept = req.headers.accept;
 
         // Validate JSON-RPC message
@@ -112,7 +114,7 @@ export class HttpServerTransport implements Transport {
             });
           }
 
-          const newSessionId = this.createSession();
+          const newSessionId = this.createSession(actAsUser);
           res.setHeader('Mcp-Session-Id', newSessionId);
           
           // Process the message
@@ -168,6 +170,7 @@ export class HttpServerTransport implements Transport {
     // SSE endpoint for long-polling
     this.app.get('/v1/mcp', (req: Request, res: Response) => {
       const sessionId = req.headers['mcp-session-id'] as string;
+      const actAsUser = req.headers['x-glean-act-as'] as string;
       const accept = req.headers.accept;
 
       if (!this.validateSession(sessionId)) {
@@ -178,6 +181,15 @@ export class HttpServerTransport implements Transport {
             message: 'Invalid or expired session',
           },
         });
+      }
+
+      // Update user context if provided
+      if (actAsUser) {
+        const session = this.sessions.get(sessionId);
+        if (session && (!session.userContext || session.userContext !== actAsUser)) {
+          session.userContext = actAsUser;
+          console.log(`Updated user context for session ${sessionId} to ${actAsUser}`);
+        }
       }
 
       if (accept?.includes('text/event-stream')) {
@@ -218,8 +230,18 @@ export class HttpServerTransport implements Transport {
   }
 
   private setupWebSocket() {
-    this.wss.on('connection', (ws: WebSocket) => {
-      const sessionId = this.createSession();
+    this.wss.on('connection', (ws: WebSocket, req: any) => {
+      const actAsUser = req.headers['x-glean-act-as'] as string;
+      const sessionId = this.createSession(actAsUser);
+
+      // Send the session ID in a message
+      ws.send(JSON.stringify({
+        jsonrpc: '2.0',
+        method: 'notifications/session',
+        params: {
+          sessionId
+        }
+      }));
 
       ws.on('message', async (data: WebSocket.RawData) => {
         try {
@@ -263,7 +285,7 @@ export class HttpServerTransport implements Transport {
     });
   }
 
-  private createSession(): string {
+  private createSession(userContext?: string): string {
     const sessionId = uuidv4();
     const now = new Date();
     this.sessions.set(sessionId, {
@@ -272,6 +294,7 @@ export class HttpServerTransport implements Transport {
       lastActivity: now,
       eventEmitter: new NodeEventEmitter(),
       isInitialized: false,
+      userContext,
     });
     return sessionId;
   }
