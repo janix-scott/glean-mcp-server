@@ -1,14 +1,14 @@
-import type { ServerTransport } from '@modelcontextprotocol/sdk/server/transport.js';
-import type { Express, Request, Response } from 'express';
+import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
+import { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
+
+import { Server } from 'http';
 import express from 'express';
-import type { Server as HttpServer } from 'http';
+import * as WebSocket from 'ws';
+import { v4 as uuidv4 } from 'uuid';
+import type { Express, Request, Response } from 'express';
 import { createServer } from 'http';
-import type { Server as WebSocketServer, RawData } from 'ws';
-import WebSocket from 'ws';
 import type { EventEmitter } from 'events';
 import { EventEmitter as NodeEventEmitter } from 'events';
-import { v4 as uuidv4 } from 'uuid';
-import type { CorsOptions } from 'cors';
 import cors from 'cors';
 import { z } from 'zod';
 
@@ -24,17 +24,12 @@ interface Session {
 }
 
 // JSON-RPC Message Schemas
-const MCPMessageSchema = z.object({
+const JSONRPCMessageSchema = z.object({
   jsonrpc: z.literal('2.0'),
   id: z.union([z.string(), z.number()]).optional(),
-  method: z.string(),
+  method: z.string().optional(),
   params: z.record(z.any()).optional(),
-});
-
-const MCPResponseSchema = z.object({
-  jsonrpc: z.literal('2.0'),
-  id: z.union([z.string(), z.number()]),
-  result: z.record(z.any()).optional(),
+  result: z.any().optional(),
   error: z.object({
     code: z.number(),
     message: z.string(),
@@ -46,13 +41,17 @@ const MCPResponseSchema = z.object({
  * HTTP transport implementation for the MCP protocol.
  * Supports HTTP long-polling, Server-Sent Events (SSE), and WebSocket connections.
  */
-export class HttpServerTransport implements ServerTransport {
+export class HttpServerTransport implements Transport {
   private app: Express;
-  private server: HttpServer;
-  private wss: WebSocketServer;
+  private server: Server;
+  private wss: WebSocket.Server;
   private sessions: Map<string, Session>;
-  private messageHandler?: (message: string) => void;
   private cleanupInterval: ReturnType<typeof setInterval>;
+  
+  public onmessage?: (message: JSONRPCMessage) => void;
+  public onclose?: () => void;
+  public onerror?: (error: Error) => void;
+  public sessionId?: string;
 
   constructor(private port: number = 3000) {
     this.app = express();
@@ -73,7 +72,7 @@ export class HttpServerTransport implements ServerTransport {
     this.app.use(express.json());
     this.app.use(cors({
       origin: '*', // Configure appropriately for production
-      methods: ['GET', 'POST'],
+      methods: ['GET', 'POST', 'DELETE'],
       allowedHeaders: ['Content-Type', 'Mcp-Session-Id', 'Accept'],
       exposedHeaders: ['Mcp-Session-Id'],
     }));
@@ -87,7 +86,7 @@ export class HttpServerTransport implements ServerTransport {
         const accept = req.headers.accept;
 
         // Validate JSON-RPC message
-        const parseResult = MCPMessageSchema.safeParse(req.body);
+        const parseResult = JSONRPCMessageSchema.safeParse(req.body);
         if (!parseResult.success) {
           return res.status(400).json({
             jsonrpc: '2.0',
@@ -115,8 +114,15 @@ export class HttpServerTransport implements ServerTransport {
 
           const newSessionId = this.createSession();
           res.setHeader('Mcp-Session-Id', newSessionId);
-          await this.handleMessage(JSON.stringify(message), res);
-          return;
+          
+          // Process the message
+          if (this.onmessage) {
+            this.onmessage(message as JSONRPCMessage);
+          }
+          
+          // For now, just acknowledge receipt
+          // The real response will be sent via the send method
+          return res.status(202).end();
         }
 
         // Validate session for non-initialize requests
@@ -130,18 +136,25 @@ export class HttpServerTransport implements ServerTransport {
           });
         }
 
-        // Handle SSE requests
-        if (accept?.includes('text/event-stream')) {
+        // Handle SSE requests for streaming
+        if (req.method === 'GET' && accept?.includes('text/event-stream')) {
           this.handleSSE(req, res, sessionId);
           return;
         }
 
         // Handle regular JSON-RPC requests
-        await this.handleMessage(JSON.stringify(message), res);
+        if (this.onmessage) {
+          this.onmessage(message as JSONRPCMessage);
+        }
+        
         this.updateSessionActivity(sessionId);
+        return res.status(202).end();
 
       } catch (error) {
         console.error('Error handling request:', error);
+        if (this.onerror) {
+          this.onerror(error instanceof Error ? error : new Error(String(error)));
+        }
         res.status(500).json({
           jsonrpc: '2.0',
           error: {
@@ -150,6 +163,52 @@ export class HttpServerTransport implements ServerTransport {
           },
         });
       }
+    });
+
+    // SSE endpoint for long-polling
+    this.app.get('/v1/mcp', (req: Request, res: Response) => {
+      const sessionId = req.headers['mcp-session-id'] as string;
+      const accept = req.headers.accept;
+
+      if (!this.validateSession(sessionId)) {
+        return res.status(404).json({
+          jsonrpc: '2.0',
+          error: {
+            code: -32000,
+            message: 'Invalid or expired session',
+          },
+        });
+      }
+
+      if (accept?.includes('text/event-stream')) {
+        this.handleSSE(req, res, sessionId);
+      } else {
+        res.status(405).json({
+          jsonrpc: '2.0',
+          error: {
+            code: -32000,
+            message: 'Method not allowed',
+          },
+        });
+      }
+    });
+
+    // Session management - explicit termination
+    this.app.delete('/v1/mcp', (req: Request, res: Response) => {
+      const sessionId = req.headers['mcp-session-id'] as string;
+      
+      if (sessionId && this.sessions.has(sessionId)) {
+        this.sessions.delete(sessionId);
+        return res.status(204).end();
+      }
+      
+      res.status(404).json({
+        jsonrpc: '2.0',
+        error: {
+          code: -32000,
+          message: 'Session not found',
+        },
+      });
     });
 
     // Health check endpoint
@@ -165,7 +224,7 @@ export class HttpServerTransport implements ServerTransport {
       ws.on('message', async (data: WebSocket.RawData) => {
         try {
           const message = JSON.parse(data.toString());
-          const parseResult = MCPMessageSchema.safeParse(message);
+          const parseResult = JSONRPCMessageSchema.safeParse(message);
           
           if (!parseResult.success) {
             ws.send(JSON.stringify({
@@ -179,12 +238,15 @@ export class HttpServerTransport implements ServerTransport {
             return;
           }
 
-          if (this.messageHandler) {
-            this.messageHandler(data.toString());
+          if (this.onmessage) {
+            this.onmessage(message as JSONRPCMessage);
           }
           this.updateSessionActivity(sessionId);
         } catch (error) {
           console.error('Error handling WebSocket message:', error);
+          if (this.onerror) {
+            this.onerror(error instanceof Error ? error : new Error(String(error)));
+          }
           ws.send(JSON.stringify({
             jsonrpc: '2.0',
             error: {
@@ -262,27 +324,9 @@ export class HttpServerTransport implements ServerTransport {
     });
   }
 
-  private async handleMessage(message: string, res: Response) {
-    if (this.messageHandler) {
-      try {
-        this.messageHandler(message);
-        // Note: The actual response will be sent via onMessage callback
-        // For now, we'll send a success response
-        res.json({
-          jsonrpc: '2.0',
-          result: {},
-        });
-      } catch (error) {
-        console.error('Error handling message:', error);
-        res.status(500).json({
-          jsonrpc: '2.0',
-          error: {
-            code: -32603,
-            message: 'Internal error',
-          },
-        });
-      }
-    }
+  // Transport interface implementation
+  async start(): Promise<void> {
+    return this.connect();
   }
 
   async connect(): Promise<void> {
@@ -294,25 +338,33 @@ export class HttpServerTransport implements ServerTransport {
     });
   }
 
-  async disconnect(): Promise<void> {
+  async send(message: JSONRPCMessage): Promise<void> {
+    const messageStr = JSON.stringify(message);
+    
+    // Broadcast to all active sessions
+    for (const [_, session] of this.sessions) {
+      session.eventEmitter.emit('message', messageStr);
+    }
+  }
+
+  async close(): Promise<void> {
     clearInterval(this.cleanupInterval);
+    
     return new Promise((resolve, reject) => {
       this.wss.close();
       this.server.close((err) => {
-        if (err) reject(err);
-        else resolve();
+        if (err) {
+          if (this.onerror) {
+            this.onerror(err);
+          }
+          reject(err);
+        } else {
+          if (this.onclose) {
+            this.onclose();
+          }
+          resolve();
+        }
       });
     });
-  }
-
-  onMessage(handler: (message: string) => void): void {
-    this.messageHandler = handler;
-  }
-
-  send(message: string): void {
-    // Broadcast to all active sessions
-    for (const [_, session] of this.sessions) {
-      session.eventEmitter.emit('message', message);
-    }
   }
 } 

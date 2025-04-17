@@ -1,128 +1,137 @@
-# @gleanwork/mcp-server
+# Glean MCP Server
 
-![MCP Server](https://badge.mcpx.dev?type=server 'MCP Server')
-![CI Build](https://github.com/gleanwork/mcp-server/actions/workflows/ci.yml/badge.svg)
-[![npm version](https://badge.fury.io/js/@gleanwork%2Fmcp-server.svg)](https://badge.fury.io/js/@gleanwork%2Fmcp-server)
-[![License](https://img.shields.io/npm/l/@gleanwork%2Fmcp-server.svg)](https://github.com/gleanwork/mcp-server/blob/main/LICENSE)
+Enhanced Model Context Protocol (MCP) server for Glean, offering both HTTP and stdio transport options.
 
-A Model Context Protocol (MCP) server implementation for Glean's search and chat capabilities. This server provides a standardized interface for AI models to interact with Glean's content search and conversational AI features.
+## Overview
+
+This project extends the standard MCP server to provide HTTP transport support alongside the traditional stdio transport. The HTTP transport enables:
+
+- REST-based API endpoints for MCP protocol messages
+- Server-Sent Events (SSE) for streaming responses
+- WebSocket connections for bidirectional communication
+- Session management with user context
 
 ## Features
 
-- **Search Integration**: Access Glean's powerful content search capabilities
-- **Chat Interface**: Interact with Glean's AI assistant
-- **MCP Compliant**: Implements the Model Context Protocol specification
+- **Multiple Transport Options**: Choose between stdio (default) and HTTP transports
+- **MCP Protocol Compliance**: Fully implements the MCP specification
+- **Comprehensive Tools**: Provides search and chat capabilities through Glean's API
+- **Session Management**: Maintains user state across requests
+- **Health Monitoring**: Includes health check endpoints
+- **Robust Error Handling**: Provides detailed error information
 
-## Tools
+## Getting Started
 
-- ### glean_search
+### Installation
 
-  Search Glean's content index using the Glean Search API. This tool allows you to query Glean's content index with various filtering and configuration options.
+```bash
+# Install dependencies
+npm install
 
-  For complete parameter details, see [Search API Documentation](https://developers.glean.com/client/operation/search/)
+# Build the project
+npm run build
+```
 
-- ### glean_chat
+### Running the Server
 
-  Interact with Glean's AI assistant using the Glean Chat API. This tool allows you to have conversational interactions with Glean's AI, including support for message history, citations, and various configuration options.
+#### With stdio Transport (Default)
 
-  For complete parameter details, see [Chat API Documentation](https://developers.glean.com/client/operation/chat/)
+```bash
+npm start
+```
 
-## Configuration
+#### With HTTP Transport
 
-### API Tokens
+```bash
+# Use the serve:http script
+npm run serve:http
 
-You'll need Glean [API credentials](https://developers.glean.com/client/authentication#glean-issued-tokens), and specifically a [user-scoped API token](https://developers.glean.com/client/authentication#user). API Tokens require the following scopes: `chat`, `search`. You should speak to your Glean administrator to provision these tokens.
+# Or run directly with options
+node build/index.js --transport=http --port=3000
+```
 
-### Configure Environment Variables
+### Testing the Server
 
-1. Set up your Glean API credentials:
+```bash
+# Run all tests
+npm test
 
-   ```bash
-   export GLEAN_SUBDOMAIN=your_subdomain
-   export GLEAN_API_TOKEN=your_api_token
+# Start the HTTP server
+npm run serve:http
+
+# In another terminal, run the example HTTP client
+npm run client:http
+```
+
+## MCP Endpoints and Tools
+
+The server provides the following MCP tools:
+
+1. **glean_search**: Search through Glean's enterprise knowledge
+   ```json
+   {
+     "name": "glean_search",
+     "arguments": {
+       "query": "your search query"
+     }
+   }
    ```
 
-1. (Optional) For [global tokens](https://developers.glean.com/indexing/authentication/permissions#global-tokens) that support impersonation:
-
-   ```bash
-   export GLEAN_ACT_AS=user@example.com
+2. **glean_chat**: Chat with Glean's AI assistant
+   ```json
+   {
+     "name": "glean_chat",
+     "arguments": {
+       "prompt": "your chat message"
+     }
+   }
    ```
 
-## Client Configuration
+## HTTP Transport
 
-You can use the built-in configuration tool to automatically set up Glean for your MCP client:
+The HTTP transport provides these endpoints:
 
-```bash
-# Configure for Cursor
-npx @gleanwork/mcp-server configure --client cursor --token your_api_token --domain your_subdomain
+- **`POST /v1/mcp`**: Send MCP protocol messages
+- **`GET /v1/mcp`**: Receive streaming responses via SSE
+- **`DELETE /v1/mcp`**: Terminate a session
+- **`GET /health`**: Health check endpoint
 
-# Configure for Claude Desktop
-npx @gleanwork/mcp-server configure --client claude --token your_api_token --domain your_subdomain
+See the [Transport Layer README](src/transport/README.md) for detailed information about the HTTP transport implementation.
 
-# Configure for Windsurf
-npx @gleanwork/mcp-server configure --client windsurf --token your_api_token --domain your_subdomain
-```
+## Example HTTP Client
 
-Alternatively, you can use an environment file:
+An example HTTP client is provided to demonstrate interaction with the server:
 
 ```bash
-npx @gleanwork/mcp-server configure --client cursor --env path/to/.env.glean
+npm run client:http
 ```
 
-The environment file should contain:
+This interactive client allows you to:
+- List available tools
+- Execute search queries
+- Chat with the assistant
+- Properly handle session management
+
+## Project Structure
 
 ```
-GLEAN_SUBDOMAIN=your_subdomain
-GLEAN_API_TOKEN=your_api_token
+src/
+├── common/          # Common utilities and error handling
+├── configure/       # Configuration management
+├── examples/        # Example clients
+│   └── http-client.js   # Example HTTP client
+├── scripts/         # Utility scripts
+│   └── run-http-server.js   # Script to run HTTP server
+├── tools/           # MCP tool implementations
+│   ├── search.js    # Glean search tool
+│   └── chat.js      # Glean chat tool
+├── transport/       # Transport layer implementations
+│   ├── http.ts      # HTTP transport implementation
+│   └── tests/       # Transport tests
+├── server.ts        # Main server implementation
+└── index.ts         # Entry point
 ```
-
-After configuration:
-
-- For Cursor: Restart Cursor and the agent will have access to Glean tools
-- For Claude Desktop: Restart Claude and use the hammer icon to access Glean tools
-- For Windsurf: Open Settings > Advanced Settings, scroll to Cascade section, and press refresh
-
-## MCP Client Configuration
-
-To configure this MCP server in your MCP client (such as Claude Desktop, Windsurf, Cursor, etc.), add the following configuration to your MCP client settings:
-
-```json
-{
-  "mcpServers": {
-    "glean": {
-      "command": "npx",
-      "args": ["-y", "@gleanwork/mcp-server"],
-      "env": {
-        "GLEAN_SUBDOMAIN": "<glean instance subdomain>",
-        "GLEAN_API_TOKEN": "<glean api token>"
-      }
-    }
-  }
-}
-```
-
-Replace the environment variable values with your actual Glean credentials.
-
-### Debugging
-
-Since MCP servers communicate over stdio, debugging can be challenging. We recommend using the [MCP Inspector](https://github.com/modelcontextprotocol/inspector), which is available as a package script:
-
-```bash
-npm run inspector
-```
-
-The Inspector will provide a URL to access debugging tools in your browser.
-
-## Contributing
-
-Please see [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
 
 ## License
 
-MIT License - see the [LICENSE](LICENSE) file for details
-
-## Support
-
-- Documentation: [docs.glean.com](https://docs.glean.com)
-- Issues: [GitHub Issues](https://github.com/gleanwork/mcp-server/issues)
-- Email: [support@glean.com](mailto:support@glean.com)
+MIT
