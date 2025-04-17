@@ -11,8 +11,8 @@ import subprocess
 import sys
 from pathlib import Path
 import logging
-from .auth import GleanAuth, AuthType, AuthError
-from .process import ProcessTransport
+from auth import GleanAuth, AuthType, AuthError
+from process import ProcessTransport
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -167,7 +167,7 @@ async def mcp_endpoint(
     mcp_session_id: Optional[str] = Header(None, alias="Mcp-Session-Id")
 ) -> Response:
     """Main MCP endpoint handling both regular JSON-RPC messages and SSE streams"""
-    logger.debug(f"Received MCP request: session_id={mcp_session_id}, accept={accept}")
+    logger.debug(f"Received MCP request: session_id={mcp_session_id}, accept={accept}, path={request.url.path}")
     
     # Handle POST requests for sending messages
     if "application/json" in accept:
@@ -176,6 +176,7 @@ async def mcp_endpoint(
             logger.debug(f"Request body: {body.decode()}")
             message_data = await request.json()
             mcp_message = MCPMessage(**message_data)
+            logger.debug(f"Parsed MCP message: {mcp_message.dict()}")
         except Exception as e:
             logger.error(f"Failed to parse request: {str(e)}")
             return JSONResponse(
@@ -325,8 +326,7 @@ async def websocket_endpoint(websocket: WebSocket):
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
+    logger.debug("Health check requested")
     return {"status": "healthy"}
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=3000) 
+# Remove the if __name__ == "__main__" block since we now use main.py 
